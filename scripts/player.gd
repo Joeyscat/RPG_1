@@ -4,6 +4,11 @@ extends CharacterBody2D
 const SPEED = 100.0
 var CURRENT_DIRECTION = DIR_RIGHT
 
+var ENEMY_INATTACK_RANGE = false
+var ENEMY_ATTACK_COOLDOWN = true
+var HEALTH = 100
+var PLAYGER_ALIVE = true
+
 # direction enum
 enum {
 	DIR_RIGHT,
@@ -28,6 +33,14 @@ func _ready():
 
 func _physics_process(delta):
 	player_movement(delta)
+	enemy_attack()
+	current_camera()
+	
+	if HEALTH <= 0:
+		PLAYGER_ALIVE = false
+		HEALTH = 0
+		print("player has been killed")
+		self.queue_free()
 
 
 
@@ -52,6 +65,10 @@ func player_movement(delta):
 		player_animation(ACT_WALK)
 		velocity.x = 0
 		velocity.y = -SPEED
+	elif Input.is_action_pressed("attack"):
+		player_animation(ACT_ATTACK)
+		velocity.x = 0
+		velocity.y = 0
 	else:
 		player_animation(ACT_IDLE)
 		velocity.x = 0
@@ -99,3 +116,43 @@ func player_animation(action):
 	else:
 		pass
 	
+func player():
+	pass
+
+func _on_player_hitbox_body_entered(body):
+	if body.has_method("enemy"):
+		ENEMY_INATTACK_RANGE = true
+
+
+func _on_player_hitbox_body_exited(body):
+	if body.has_method("enemy"):
+		ENEMY_INATTACK_RANGE = false
+
+
+func enemy_attack():
+	if ENEMY_INATTACK_RANGE and ENEMY_ATTACK_COOLDOWN:
+		HEALTH = HEALTH-20
+		ENEMY_ATTACK_COOLDOWN = false
+		$slime_attack_cooldown.start()
+		print(HEALTH)
+
+
+func player_attack():
+	pass
+
+
+func _on_slime_attack_cooldown_timeout():
+	$slime_attack_cooldown.stop()
+	ENEMY_ATTACK_COOLDOWN = true
+	
+	
+func current_camera():
+	if Global.CURRENT_SCENE == "world":
+		$camera_world.enabled = true
+		$camera_level_2.enabled = false
+	elif Global.CURRENT_SCENE == "level_2":
+		$camera_world.enabled = false
+		$camera_level_2.enabled = true
+
+
+

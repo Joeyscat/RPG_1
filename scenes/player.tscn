@@ -1,4 +1,4 @@
-[gd_scene load_steps=55 format=3 uid="uid://cskwfmfuo87kb"]
+[gd_scene load_steps=57 format=3 uid="uid://cskwfmfuo87kb"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_ptof7"]
 [ext_resource type="Texture2D" uid="uid://dij1il2qexrae" path="res://art/characters/player.png" id="2_iihqn"]
@@ -210,16 +210,16 @@ region = Rect2(240, 192, 48, 48)
 [sub_resource type="SpriteFrames" id="SpriteFrames_gjmw7"]
 animations = [{
 "frames": [{
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_4axao")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_8qrwf")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_mm28g")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_ojo8r")
 }],
 "loop": true,
@@ -287,16 +287,16 @@ animations = [{
 "speed": 5.0
 }, {
 "frames": [{
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_sepkq")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_0t0lh")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_m5h6d")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_6i5hq")
 }],
 "loop": true,
@@ -350,16 +350,16 @@ animations = [{
 "speed": 5.0
 }, {
 "frames": [{
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_eifjs")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_tesxi")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_6waha")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_esnex")
 }],
 "loop": true,
@@ -413,13 +413,50 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="player" type="CharacterBody2D"]
-script = ExtResource("1_ptof7")
+[sub_resource type="CircleShape2D" id="CircleShape2D_xi8yg"]
+radius = 4.0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[sub_resource type="CircleShape2D" id="CircleShape2D_d3rih"]
+radius = 7.07107
+
+[node name="player" type="CharacterBody2D"]
+y_sort_enabled = true
+collision_layer = 3
+script = ExtResource("1_ptof7")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_gjmw7")
-animation = &"side_walk"
-frame = 5
-frame_progress = 0.991881
+animation = &"back_attack"
+offset = Vector2(2.08165e-12, -15)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(2.08165e-12, -1)
+shape = SubResource("CircleShape2D_xi8yg")
+
+[node name="player_hitbox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="player_hitbox"]
+position = Vector2(0, -4)
+shape = SubResource("CircleShape2D_d3rih")
+
+[node name="slime_attack_cooldown" type="Timer" parent="."]
+wait_time = 2.0
+
+[node name="camera_world" type="Camera2D" parent="."]
+limit_left = -241
+limit_top = -140
+limit_right = 397
+limit_bottom = 236
+limit_smoothed = true
+drag_horizontal_enabled = true
+drag_vertical_enabled = true
+
+[node name="camera_level_2" type="Camera2D" parent="."]
+limit_left = -241
+limit_top = -140
+limit_right = 397
+limit_bottom = 236
+
+[connection signal="body_entered" from="player_hitbox" to="." method="_on_player_hitbox_body_entered"]
+[connection signal="body_exited" from="player_hitbox" to="." method="_on_player_hitbox_body_exited"]
+[connection signal="timeout" from="slime_attack_cooldown" to="." method="_on_slime_attack_cooldown_timeout"]
